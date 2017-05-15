@@ -6,18 +6,7 @@ import { HeroService } from './hero.service';
 
 @Component({
   selector: 'my-heroes',
-  template: `
-  
-  <hero-detail [hero]="selectedHero"></hero-detail>
-  
-  <ul>
-    <li *ngFor="let hero of heroes" 
-    (click)="onSelect(hero)" 
-    [class.selected]="hero === selectedHero">
-      <span class="badge">{{hero.id}}</span> {{hero.name}}
-    </li>
-  </ul>
-  `,
+  templateUrl: './heroes.component.html',
   styles : [`
   h1 {color:red}
     .selected {
@@ -91,8 +80,28 @@ export class HeroesComponent implements OnInit {
   getHeroes(): void {
     this.heroService.getHeroes().then(heroes => this.heroes = heroes);
   }
+
   ngOnInit(): void {
     this.getHeroes();
   }
+
+  add(name: string): void {
+    name = name.trim();
+    if (!name) { return; }
+    this.heroService.create(name)
+      .then(hero => {
+        this.heroes.push(hero);
+        this.selectedHero = null;
+      });
+  }
+  delete(hero: Hero): void {
+  this.heroService
+      .delete(hero.id)
+      .then(() => {
+        this.heroes = this.heroes.filter(h => h !== hero);
+        if (this.selectedHero === hero) { this.selectedHero = null; }
+      });
+  }
+
 }
 
